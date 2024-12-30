@@ -1,27 +1,60 @@
 import common.Logger;
+
+import java.awt.*;
+import java.awt.event.*;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Scanner;
 
-public class Client {
-    private static final Logger log = Logger.getLogger();
-    public static final int PORT = 8080;
+public class Client extends Frame implements ActionListener {
+    private final int PORT = 8080;
+    private final Logger log = Logger.getLogger();
 
-    public void connect() {
-        Scanner scanner = new Scanner(System.in);
+    private final TextField nameField;
+    private Socket socket;
+    private PrintWriter out;
 
-        System.out.print("Enter your name: ");
-        String name = scanner.nextLine();
+    public Client() {
+        setLayout(new FlowLayout());
 
-        try (Socket socket = new Socket("localhost", PORT);
-             PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true)) {
-            log.info("Connected to the server on port " + PORT);
-            out.println(name);
-            log.info("Sent name to the server: " + name);
+        Label nameLabel = new Label("Enter your name:");
+        add(nameLabel);
+
+        nameField = new TextField(20);
+        add(nameField);
+
+        final Button submitButton = new Button("Submit");
+        submitButton.addActionListener(this);
+        add(submitButton);
+
+        setTitle("Client");
+        setSize(300, 100);
+        setVisible(true);
+
+        try {
+            socket = new Socket("localhost", PORT);
+            out = new PrintWriter(socket.getOutputStream(), true);
         } catch (IOException e) {
-            log.error("Client exception: " + e.getMessage());
+            log.error(e.getMessage());
+            System.exit(1);
         }
+
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    log.error(e.getMessage());
+                }
+                System.exit(0);
+            }
+        });
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String name = nameField.getText();
+        out.println(name);
+        nameField.setText("");
     }
 }
