@@ -6,4 +6,12 @@ public record Student(int id, String name) {
     public Student(String name) {
         this(++idCounter, name);
     }
+
+    @Override
+    public String toString() {
+        return "Student{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

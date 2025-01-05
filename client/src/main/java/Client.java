@@ -56,5 +56,6 @@ public class Client extends Frame implements ActionListener {
         String name = nameField.getText();
         out.println(name);
         nameField.setText("");
+        System.exit(0);
     }
 }
